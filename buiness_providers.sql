@@ -39,6 +39,15 @@ a."processingCurrency" AS 'Processing Currency',
 abd."currency" AS 'Settlement Currency',
 aad."idStandardInvoiceMode",
 CASE
+
+WHEN aaf."provider" = 'Shradda' THEN
+	CASE WHEN td."operationType" IN ('capture', 'payment') AND execCodes = '0' THEN
+		CASE
+		WHEN td."network" IN ('CB', 'VISA', 'MASTERCARD') THEN GREATEST((td."appliedCommissionAmountFix" + td."appliedCommisionAmountVar") / 2, 0)
+		ELSE 0 END -- autre réseaux ? ajouter factu add après
+	ELSE 0 END
+
+
 WHEN aaf."provider" IN ('ECardon', 'Drexler', 'EMerchantPay') THEN -- réseau FPU ? revenu on cbk rpst setupfees ?
 	CASE WHEN td."operationType" IN ('capture', 'payment') AND execCodes = '0' THEN
 		CASE
@@ -47,12 +56,6 @@ WHEN aaf."provider" IN ('ECardon', 'Drexler', 'EMerchantPay') THEN -- réseau FP
 		ELSE 0 END -- autre réseaux ?
 	ELSE 0 END
 
-WHEN aaf."provider" = 'Shradda' THEN
-	CASE WHEN td."operationType" IN ('capture', 'payment') AND execCodes = '0' THEN
-		CASE
-		WHEN td."network" IN ('CB', 'VISA', 'MASTERCARD') THEN GREATEST((td."appliedCommissionAmountFix" + td."appliedCommisionAmountVar") / 2, 0)
-		ELSE 0 END -- autre réseaux ? ajouter factu add après
-	ELSE 0 END
 
 WHEN aaf."provider" = 'Apexx' THEN
 	CASE
